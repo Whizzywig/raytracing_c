@@ -27,34 +27,84 @@ double length_squared(struct vec3 a){
 double length(struct vec3 a){
     return sqrt(length_squared(a));
 }
-inline double dot(const struct vec3 u, const struct vec3 v){
+double dot(const struct vec3 u, const struct vec3 v){
     return u.x * v.x + u.y * v.y + u.z * v.z;
 }
-inline struct vec3 cross(const struct vec3 u, const struct vec3 v){
+struct vec3 cross(const struct vec3 u, const struct vec3 v){
     struct vec3 out =  {u.y * v.z - u.z * v.y,
                         u.z * v.x - u.x * v.z,
                         u.x * v.y - u.y * v.x};
     return out;
 }
-inline struct vec3 unit_vector(struct vec3 v){
+struct vec3 unit_vector(struct vec3 v){
     return div(v, length(v));
 }
 
+// ray
+struct ray {
+    struct vec3 origin;
+    struct vec3 direction;
+};
+int hit_sphere(struct vec3 center, double radius, struct ray r){
+    struct vec3 oc = {r.origin.x - center.x, r.origin.y - center.y, r.origin.z - center.z};
+    double a = dot(r.direction, r.direction);
+    double b = 2.0 * dot(oc, r.direction);
+    double c = dot(oc, oc) - radius * radius;
+    double discriminant = b*b - 4*a*c;
+    return (discriminant > 0);
+}
+struct vec3 ray_colour(const struct ray r){
+    struct vec3 sphere = {0,0,-1};
+    if (hit_sphere(sphere, 0.5, r)){
+        struct vec3 out = {1,0,0};
+        return out;
+    }
+    struct vec3 unit_direction = unit_vector(r.direction);
+    double t = 0.5*(unit_direction.y + 1.0);
+    struct vec3 colour = {1.0-t, 1.0-t, 1.0-t};
+    struct vec3 highlight = {t*0.5, t*0.7, t};
+    struct vec3 out = {colour.x + highlight.x, colour.y + highlight.y, colour.z + highlight.z};
+    return out;
+}
+
+// main
 void wrtie_colour(struct vec3 colour){
     printf("%d %d %d\n", (int)(255.999 * colour.x), (int)(255.999 * colour.y), (int)(255.999 * colour.z));
 }
 
 
 int main() {
-    const int image_width = 256;
-    const int image_height = 256;
+    // Image
+    const double aspect_ratio = 16.0 / 9.0;
+    const int image_width = 400;
+    const int image_height = (int)(image_width / aspect_ratio);
+
+    // Camera
+    double viewport_height = 2.0;
+    double viewport_width = aspect_ratio * viewport_height;
+    double focal_length = 1.0;
+
+    struct vec3 origin = {0, 0, 0};
+    struct vec3 horizontal = {viewport_width, 0, 0};
+    struct vec3 vertical = {0, viewport_height, 0};
+    struct vec3 lower_left_corner = {origin.x - horizontal.x/2 - vertical.x/2, 
+                                    origin.y - horizontal.y/2 - vertical.y/2,
+                                    origin.z - horizontal.z/2 - vertical.z/2 - focal_length};
+    
+    //Render
 
     printf("P3\n%d %d\n255\n", image_width, image_height);
 
     for (int j = image_height-1; j >= 0; --j) {
         fprintf(stderr, "\rScanlines remaining: %d ", j);
         for (int i = 0; i < image_width; ++i) {
-            struct vec3 pixel_colour = {((double)i / (image_width - 1)), ((double)j / (image_height -1)), 0.25};
+            double u = (double)i / (image_width-1);
+            double v = (double)j / (image_height-1);
+            struct ray r = {origin, {lower_left_corner.x + u*horizontal.x + v*vertical.x - origin.x,
+                                    lower_left_corner.y + u*horizontal.y + v*vertical.y - origin.y,
+                                    lower_left_corner.z + u*horizontal.z + v*vertical.z - origin.z}};
+            struct vec3 pixel_colour = ray_colour(r);
+            //struct vec3 pixel_colour = {((double)i / (image_width - 1)), ((double)j / (image_height -1)), 0.25};
             wrtie_colour(pixel_colour);
         }
     }
