@@ -45,26 +45,37 @@ struct ray {
     struct vec3 origin;
     struct vec3 direction;
 };
-int hit_sphere(struct vec3 center, double radius, struct ray r){
+struct vec3 at(struct ray r, double t){
+    struct vec3 out = {r.origin.x + t * r.direction.x,
+                        r.origin.y + t * r.direction.y,
+                        r.origin.z + t * r.direction.z};
+    return out;
+}
+double hit_sphere(struct vec3 center, double radius, struct ray r){
     struct vec3 oc = {r.origin.x - center.x, r.origin.y - center.y, r.origin.z - center.z};
     double a = dot(r.direction, r.direction);
     double b = 2.0 * dot(oc, r.direction);
     double c = dot(oc, oc) - radius * radius;
     double discriminant = b*b - 4*a*c;
-    return (discriminant > 0);
+    if (discriminant < 0){
+        return -1.0;
+    } else {
+        return (-b - sqrt(discriminant)) / (2.0 * a);
+    }
 }
 struct vec3 ray_colour(const struct ray r){
     struct vec3 sphere = {0,0,-1};
-    if (hit_sphere(sphere, 0.5, r)){
-        struct vec3 out = {1,0,0};
-        return out;
+    double t = hit_sphere(sphere, 0.5, r);
+    if (t > 0.0){
+        struct vec3 temp = at(r, t);
+        struct vec3 n = unit_vector((struct vec3){temp.x, temp.y, temp.z + 1});
+        return (struct vec3){0.5 * (n.x+1), 0.5 * (n.y+1), 0.5 * (n.z+1)};
     }
     struct vec3 unit_direction = unit_vector(r.direction);
-    double t = 0.5*(unit_direction.y + 1.0);
+    t = 0.5*(unit_direction.y + 1.0);
     struct vec3 colour = {1.0-t, 1.0-t, 1.0-t};
     struct vec3 highlight = {t*0.5, t*0.7, t};
-    struct vec3 out = {colour.x + highlight.x, colour.y + highlight.y, colour.z + highlight.z};
-    return out;
+    return (struct vec3){colour.x + highlight.x, colour.y + highlight.y, colour.z + highlight.z};
 }
 
 // main
