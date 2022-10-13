@@ -53,14 +53,18 @@ struct vec3 at(struct ray r, double t){
 }
 double hit_sphere(struct vec3 center, double radius, struct ray r){
     struct vec3 oc = {r.origin.x - center.x, r.origin.y - center.y, r.origin.z - center.z};
-    double a = dot(r.direction, r.direction);
-    double b = 2.0 * dot(oc, r.direction);
-    double c = dot(oc, oc) - radius * radius;
-    double discriminant = b*b - 4*a*c;
+    //double a = dot(r.direction, r.direction);
+    double a = length_squared(r.direction);
+    //double b = 2.0 * dot(oc, r.direction);
+    double half_b = dot(oc, r.direction);
+    //double c = dot(oc, oc) - radius * radius;
+    double c = length_squared(oc) - (radius * radius); 
+    //double discriminant = b*b - 4*a*c;
+    double discriminant = half_b*half_b - a*c;
     if (discriminant < 0){
         return -1.0;
     } else {
-        return (-b - sqrt(discriminant)) / (2.0 * a);
+        return (-half_b - sqrt(discriminant)) / a;
     }
 }
 struct vec3 ray_colour(const struct ray r){
