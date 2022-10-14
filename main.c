@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <math.h>
+#include "rt.h"
 
 struct vec3 {
     double x;
