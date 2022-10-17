@@ -9,7 +9,7 @@ void wrtie_colour(vec3 colour){
 
 vec3 hit_ray_colour(const Ray r, const hit_map world[]){
     hit_record rec;
-    if (world_hit_object(world, r, 0.0, (double)INFINITY, rec) == 1){
+    if (world_hit_object(world, r, 0.0, (double)INFINITY, &rec) == 1){
         return (vec3){0.5 * (rec.normal.x + 1.0), 0.5 * (rec.normal.y + 1.0), 0.5 * (rec.normal.z + 1.0)};
     }
     vec3 unit_direction = unit_vector(r.direction);
@@ -54,6 +54,7 @@ int main() {
                                     lower_left_corner.z + u*horizontal.z + v*vertical.z - origin.z}};
             vec3 pixel_colour = hit_ray_colour(r, world);
             //vec3 pixel_colour = {((double)i / (image_width - 1)), ((double)j / (image_height -1)), 0.25};
+            //fprintf(stderr, "\rinfo x: %f, y: %f, z: %f", pixel_colour.x,pixel_colour.y,pixel_colour.z);
             wrtie_colour(pixel_colour);
         }
     }
