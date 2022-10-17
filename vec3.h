@@ -1,6 +1,7 @@
 #ifndef VEC3_H
 #define VEC3_H
 
+#include "rt.h"
 #include <math.h>
 
 typedef struct {
@@ -42,4 +43,19 @@ vec3 unit_vector(vec3 v){
     return vec3_div(v, length(v));
 }
 
+inline static vec3 vec3_random(){
+    return (vec3){random_double(), random_double(), random_double()};
+}
+
+inline static vec3 vec3_random_range(double min, double max){
+    return (vec3){random_double_range(min, max), random_double_range(min, max), random_double_range(min, max)};
+}
+
+vec3 random_in_unit_sphere(){
+    while(1){
+        vec3 p = vec3_random_range(-1, 1);
+        if (length_squared(p) >= 1) continue;
+        return p;
+    }
+}
 #endif

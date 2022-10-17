@@ -19,11 +19,11 @@ typedef struct {
     int index;
 } hit_map;
 
-int hit_object(const hit_map hm, const Ray r, double t_min, double t_max, hit_record *rec) {
+int hit_object(hit_map hm, const Ray r, double t_min, double t_max, hit_record *rec) {
     return hm.hit_fun(hm.index, r, t_min, t_max, rec);
 }
 
-int world_hit_object(const hit_map world[], const Ray r, double t_min, double t_max, hit_record *rec) {
+int world_hit_object(hit_map * world, const Ray r, double t_min, double t_max, hit_record *rec) {
     hit_record temp_rec;
     int hit = 0;
     double closest_yet = t_max;

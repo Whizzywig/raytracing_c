@@ -2,19 +2,28 @@
 #include "rt.h"
 #include "sphere.h"
 #include "camera.h"
+#include "vec3.h"
 
 // main
 void wrtie_colour(vec3 colour, int samples_per_pixel){
     double scale = 1.0 / samples_per_pixel;
-    printf("%d %d %d\n", (int)(256 * clamp((colour.x * scale), 0.0, 0.999)), 
-                                (int)(256 * clamp((colour.y * scale), 0.0, 0.999)), 
-                                (int)(256 * clamp((colour.z * scale), 0.0, 0.999)));
+    printf("%d %d %d\n", (int)(256 * clamp(sqrt(colour.x * scale), 0.0, 0.999)), 
+                                (int)(256 * clamp(sqrt(colour.y * scale), 0.0, 0.999)), 
+                                (int)(256 * clamp(sqrt(colour.z * scale), 0.0, 0.999)));
 }
 
-vec3 hit_ray_colour(const Ray r, const hit_map world[]){
+vec3 hit_ray_colour(const Ray r, hit_map * world, int depth){
+    //return black if it reaches max depth
+    if (depth <= 0) return (vec3){0.0, 0.0, 0.0};
     hit_record rec;
-    if (world_hit_object(world, r, 0.0, (double)INFINITY, &rec) == 1){
-        return (vec3){0.5 * (rec.normal.x + 1.0), 0.5 * (rec.normal.y + 1.0), 0.5 * (rec.normal.z + 1.0)};
+    if (world_hit_object(world, r, 0.001, (double)INFINITY, &rec) == 1){
+        vec3 random_point_in_sphere = random_in_unit_sphere();
+        vec3 target = {rec.location.x + rec.normal.x + random_point_in_sphere.x,
+                        rec.location.y + rec.normal.y + random_point_in_sphere.y,
+                        rec.location.z + rec.normal.z + random_point_in_sphere.z};
+        //return (vec3){0.5 * (rec.normal.x + 1.0), 0.5 * (rec.normal.y + 1.0), 0.5 * (rec.normal.z + 1.0)};
+        vec3 colour = hit_ray_colour((Ray){rec.location, (vec3){target.x - rec.location.x, target.y - rec.location.y, target.z - rec.location.z}}, world, depth - 1);
+        return (vec3){0.5 * colour.x, 0.5 * colour.y, 0.5 * colour.z};
     }
     vec3 unit_direction = unit_vector(r.direction);
     double t = 0.5*(unit_direction.y + 1.0);
@@ -35,6 +44,7 @@ int main() {
     // Camera
     camera camera = new_camera();
     int samples_per_pixel = 100;
+    int max_depth = 50;
 
     // vec3 origin = {0, 0, 0};
     // vec3 horizontal = {viewport_width, 0, 0};
@@ -48,7 +58,7 @@ int main() {
     printf("P3\n%d %d\n255\n", image_width, image_height);
 
     for (int j = image_height-1; j >= 0; --j) {
-        fprintf(stderr, "\rScanlines remaining: %d ", j);
+        fprintf(stderr, "\rScanlines remaining: %d , %.2f%% completed ", j, (1.0 - ((double)j / (double)image_height)) * 100);
         for (int i = 0; i < image_width; ++i) {
             // Ray r = {origin, {lower_left_corner.x + u*horizontal.x + v*vertical.x - origin.x,
             //                 lower_left_corner.y + u*horizontal.y + v*vertical.y - origin.y,
@@ -60,7 +70,7 @@ int main() {
                 double u = (double)(i + random_double()) / (image_width-1);
                 double v = (double)(j + random_double()) / (image_height-1);
                 Ray r = get_camera_ray(camera, u, v);
-                pixel_colour = add(pixel_colour, hit_ray_colour(r, world));
+                pixel_colour = add(pixel_colour, hit_ray_colour(r, world, max_depth));
             }
             //vec3 pixel_colour = {((double)i / (image_width - 1)), ((double)j / (image_height -1)), 0.25};
             //fprintf(stderr, "\rinfo x: %f, y: %f, z: %f", pixel_colour.x,pixel_colour.y,pixel_colour.z);
