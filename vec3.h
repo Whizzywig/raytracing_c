@@ -20,7 +20,7 @@ vec3 mul(vec3 a, const double t){
     a.z *= t;
     return a;
 }
-vec3 div(vec3 a, const double t){
+vec3 vec3_div(vec3 a, const double t){
     return mul(a, 1/t);
 }
 double length_squared(vec3 a){
@@ -39,7 +39,7 @@ vec3 cross(const vec3 u, const vec3 v){
     return out;
 }
 vec3 unit_vector(vec3 v){
-    return div(v, length(v));
+    return vec3_div(v, length(v));
 }
 
 #endif
