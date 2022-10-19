@@ -50,12 +50,24 @@ inline static vec3 vec3_random(){
 inline static vec3 vec3_random_range(double min, double max){
     return (vec3){random_double_range(min, max), random_double_range(min, max), random_double_range(min, max)};
 }
-
-vec3 random_in_unit_sphere(){
+vec3 random_in_unit_sphere();
+inline vec3 random_in_unit_sphere(){
     while(1){
         vec3 p = vec3_random_range(-1, 1);
         if (length_squared(p) >= 1) continue;
         return p;
     }
+}
+vec3 random_unit_vector();
+inline vec3 random_unit_vector(){
+    return unit_vector(random_in_unit_sphere());
+}
+
+vec3 random_in_hemisphere(const vec3& normal) {
+    vec3 in_unit_sphere = random_in_unit_sphere();
+    if (dot(in_unit_sphere, normal) > 0.0) // In the same hemisphere as the normal
+        return in_unit_sphere;
+    else
+        return -in_unit_sphere;
 }
 #endif

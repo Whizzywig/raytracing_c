@@ -17,10 +17,10 @@ vec3 hit_ray_colour(const Ray r, hit_map * world, int depth){
     if (depth <= 0) return (vec3){0.0, 0.0, 0.0};
     hit_record rec;
     if (world_hit_object(world, r, 0.001, (double)INFINITY, &rec) == 1){
-        vec3 random_point_in_sphere = random_in_unit_sphere();
-        vec3 target = {rec.location.x + rec.normal.x + random_point_in_sphere.x,
-                        rec.location.y + rec.normal.y + random_point_in_sphere.y,
-                        rec.location.z + rec.normal.z + random_point_in_sphere.z};
+        vec3 random_vector = random_unit_vector();
+        vec3 target = {rec.location.x + rec.normal.x + random_vector.x,
+                        rec.location.y + rec.normal.y + random_vector.y,
+                        rec.location.z + rec.normal.z + random_vector.z};
         //return (vec3){0.5 * (rec.normal.x + 1.0), 0.5 * (rec.normal.y + 1.0), 0.5 * (rec.normal.z + 1.0)};
         vec3 colour = hit_ray_colour((Ray){rec.location, (vec3){target.x - rec.location.x, target.y - rec.location.y, target.z - rec.location.z}}, world, depth - 1);
         return (vec3){0.5 * colour.x, 0.5 * colour.y, 0.5 * colour.z};
