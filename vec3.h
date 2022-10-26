@@ -63,11 +63,21 @@ inline vec3 random_unit_vector(){
     return unit_vector(random_in_unit_sphere());
 }
 
-vec3 random_in_hemisphere(const vec3& normal) {
+vec3 random_in_hemisphere(const vec3 *normal) {
     vec3 in_unit_sphere = random_in_unit_sphere();
-    if (dot(in_unit_sphere, normal) > 0.0) // In the same hemisphere as the normal
+    if (dot(in_unit_sphere, *normal) > 0.0) // In the same hemisphere as the normal
         return in_unit_sphere;
     else
-        return -in_unit_sphere;
+        return (vec3){-in_unit_sphere.x, -in_unit_sphere.y, -in_unit_sphere.z};
+}
+
+int near_zero(vec3 v){
+    const double s = 1e-8;
+    return (v.x < s) && (v.y < s) && (v.z < s);
+}
+
+vec3 reflect(const vec3 *v, const vec3 *n) {
+    const double d = dot(*v, *n);
+    return (vec3){v->x - 2*d*n->x, v->y - 2*d*n->y, v->z - 2*d*n->z};
 }
 #endif

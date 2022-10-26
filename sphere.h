@@ -7,9 +7,12 @@
 
 #include <stdio.h>
 
+struct material;
+
 typedef struct {
     vec3 center;
     double radius;
+    const struct material * mat_ptr;
 } sphere;
 
 static sphere SPHERES[8];
@@ -37,6 +40,7 @@ int sphere_hit(int index, const Ray r, double t_min, double t_max, hit_record *r
     // update the record
     rec->t = root;
     rec->location = at(r, rec->t);
+    rec->mat_ptr = SPHERES[index].mat_ptr;
     //printf("\n Object hit, t=%f, x=%f, y=%f, z=%f\n",rec->t, rec->location.x, rec->location.y, rec->location.z);
     vec3 outward_normal = {(rec->location.x - SPHERES[index].center.x) / SPHERES[index].radius,
                         (rec->location.y - SPHERES[index].center.y) / SPHERES[index].radius,
@@ -48,8 +52,8 @@ int sphere_hit(int index, const Ray r, double t_min, double t_max, hit_record *r
     return 1;
 }
 
-hit_map create_sphere(vec3 center, double radius){
-    SPHERES[SPHERE_CURRENT] = (sphere){center, radius};
+hit_map create_sphere(vec3 center, double radius, const struct material * m){
+    SPHERES[SPHERE_CURRENT] = (sphere){center, radius, m};
     SPHERE_CURRENT++;
     hit_map out = {&sphere_hit, HIT_INDEX};
     HIT_INDEX++;

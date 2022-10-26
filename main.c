@@ -3,6 +3,7 @@
 #include "sphere.h"
 #include "camera.h"
 #include "vec3.h"
+#include "material.h"
 
 // main
 void wrtie_colour(vec3 colour, int samples_per_pixel){
@@ -17,13 +18,20 @@ vec3 hit_ray_colour(const Ray r, hit_map * world, int depth){
     if (depth <= 0) return (vec3){0.0, 0.0, 0.0};
     hit_record rec;
     if (world_hit_object(world, r, 0.001, (double)INFINITY, &rec) == 1){
-        vec3 random_vector = random_unit_vector();
-        vec3 target = {rec.location.x + rec.normal.x + random_vector.x,
-                        rec.location.y + rec.normal.y + random_vector.y,
-                        rec.location.z + rec.normal.z + random_vector.z};
-        //return (vec3){0.5 * (rec.normal.x + 1.0), 0.5 * (rec.normal.y + 1.0), 0.5 * (rec.normal.z + 1.0)};
-        vec3 colour = hit_ray_colour((Ray){rec.location, (vec3){target.x - rec.location.x, target.y - rec.location.y, target.z - rec.location.z}}, world, depth - 1);
-        return (vec3){0.5 * colour.x, 0.5 * colour.y, 0.5 * colour.z};
+        // vec3 random_vector = random_unit_vector();
+        // vec3 target = {rec.location.x + rec.normal.x + random_vector.x,
+        //                 rec.location.y + rec.normal.y + random_vector.y,
+        //                 rec.location.z + rec.normal.z + random_vector.z};
+        // //return (vec3){0.5 * (rec.normal.x + 1.0), 0.5 * (rec.normal.y + 1.0), 0.5 * (rec.normal.z + 1.0)};
+        // vec3 colour = hit_ray_colour((Ray){rec.location, (vec3){target.x - rec.location.x, target.y - rec.location.y, target.z - rec.location.z}}, world, depth - 1);
+        // return (vec3){0.5 * colour.x, 0.5 * colour.y, 0.5 * colour.z};
+        Ray scatterd;
+        //TODO figure out why it broke this time
+        if (rec.mat_ptr->scatter_fun(&r, &rec, &scatterd)){
+            vec3 colour = hit_ray_colour(scatterd, world, depth - 1);
+            return (vec3){rec.mat_ptr->albedo.x * colour.x, rec.mat_ptr->albedo.y * colour.y, rec.mat_ptr->albedo.z * colour.z};
+        }
+        return (vec3){0.0, 0.0, 0.0};
     }
     vec3 unit_direction = unit_vector(r.direction);
     double t = 0.5*(unit_direction.y + 1.0);
@@ -36,10 +44,18 @@ int main() {
     const int image_width = 400;
     const int image_height = (int)(image_width / aspect_ratio);
 
+    // Materials
+    material material_ground = (material){(vec3){0.8, 0.8, 0.8}, *lambertian};
+    material material_center = (material){(vec3){0.7, 0.3, 0.3}, *lambertian};
+    material material_left = (material){(vec3){0.8, 0.8, 0.8}, *metal};
+    material material_right = (material){(vec3){0.8, 0.6, 0.2}, *metal};
+
     // World
     hit_map world[10];
-    world[0] = create_sphere((vec3){0.0, 0.0, -1.0}, 0.5);
-    world[1] = create_sphere((vec3){0.0, -100.5, -1.0}, 100.0);
+    world[0] = create_sphere((vec3){0.0, 0.0, -1.0}, 0.5, &material_center);
+    world[1] = create_sphere((vec3){0.0, -100.5, -1.0}, 100.0, &material_ground);
+    world[2] = create_sphere((vec3){-1.0, 0.0, -1.0}, 0.5, &material_left);
+    world[3] = create_sphere((vec3){1.0, 0.0, -1.0}, 0.5, &material_right);
 
     // Camera
     camera camera = new_camera();

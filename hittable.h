@@ -7,9 +7,12 @@
 
 static int HIT_INDEX = 0;
 
+struct material;
+
 typedef struct {
     vec3 location;
     vec3 normal;
+    const struct material * mat_ptr;
     double t;
     int front_face;
 } hit_record;
@@ -29,8 +32,8 @@ int world_hit_object(hit_map * world, const Ray r, double t_min, double t_max, h
     double closest_yet = t_max;
     int temp;
     //sizeof(world) / sizeof(hit_map) == 10 rn
-    // breaks bc only 2 items exist
-    for (int i = 0; i < (2); i++){
+    // breaks bc only 4 items exist
+    for (int i = 0; i < (4); i++){
         temp = hit_object(world[i], r, t_min, closest_yet, &temp_rec);
         if (temp){
             //printf("temp record normal x=%f, y=%f, z=%f\n", temp_rec.normal.x, temp_rec.normal.y, temp_rec.normal.z);
