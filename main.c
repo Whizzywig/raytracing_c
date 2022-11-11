@@ -27,7 +27,7 @@ vec3 hit_ray_colour(const Ray r, hit_map * world, int depth){
         // return (vec3){0.5 * colour.x, 0.5 * colour.y, 0.5 * colour.z};
         Ray scatterd;
         //TODO figure out why it broke this time
-        if (rec.mat_ptr->scatter_fun(&r, &rec, &scatterd)){
+        if (rec.mat_ptr->scatter_fun(rec.mat_ptr, &r, &rec, &scatterd)){
             vec3 colour = hit_ray_colour(scatterd, world, depth - 1);
             return (vec3){rec.mat_ptr->albedo.x * colour.x, rec.mat_ptr->albedo.y * colour.y, rec.mat_ptr->albedo.z * colour.z};
         }
@@ -47,8 +47,8 @@ int main() {
     // Materials
     material material_ground = (material){(vec3){0.8, 0.8, 0.8}, *lambertian};
     material material_center = (material){(vec3){0.7, 0.3, 0.3}, *lambertian};
-    material material_left = (material){(vec3){0.8, 0.8, 0.8}, *metal};
-    material material_right = (material){(vec3){0.8, 0.6, 0.2}, *metal};
+    material material_left = (material){(vec3){0.8, 0.8, 0.8}, *metal, 0.3};
+    material material_right = (material){(vec3){0.8, 0.6, 0.2}, *metal, 1.0};
 
     // World
     malloc_spheres(8);
