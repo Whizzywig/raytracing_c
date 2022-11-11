@@ -37,4 +37,15 @@ int metal(const material *mat, const Ray *r_in, const hit_record *rec, Ray *scat
     return (dot(scattered->direction, rec->normal) > 0);
 }
 
+// must have colour set to (1.0, 1.0, 1.0) and requires the extra to be set to the dialectric
+int dialectric(const material *mat, const Ray *r_in, const hit_record *rec, Ray *scattered){
+    vec3 attenuation = (vec3){1.0, 1.0, 1.0};
+    double refraction_ratio = rec->front_face ? (1.0/mat->extra) : mat->extra;
+
+    vec3 unit_direction = unit_vector(r_in->direction);
+    vec3 refracted = refract(&unit_direction, &rec->normal, refraction_ratio);
+    *scattered = (Ray){rec->location, refracted};
+    return 1;
+}
+
 #endif

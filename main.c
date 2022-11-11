@@ -46,7 +46,7 @@ int main() {
 
     // Materials
     material material_ground = (material){(vec3){0.8, 0.8, 0.8}, *lambertian};
-    material material_center = (material){(vec3){0.7, 0.3, 0.3}, *lambertian};
+    material material_center = (material){(vec3){1.0, 1.0, 1.0}, *dialectric, 1.5};
     material material_left = (material){(vec3){0.8, 0.8, 0.8}, *metal, 0.3};
     material material_right = (material){(vec3){0.8, 0.6, 0.2}, *metal, 1.0};
 

@@ -80,4 +80,15 @@ vec3 reflect(const vec3 *v, const vec3 *n) {
     const double d = dot(*v, *n);
     return (vec3){v->x - 2*d*n->x, v->y - 2*d*n->y, v->z - 2*d*n->z};
 }
+
+vec3 refract(const vec3 *uv, const vec3 *n, double etai_over_etat){
+    double cos_theta = fmin(dot((vec3){-uv->x, -uv->y, -uv->z}, *n), 1.0);
+    vec3 r_out_perp = (vec3){etai_over_etat * (uv->x + cos_theta* n->x),
+                            etai_over_etat * (uv->y + cos_theta* n->y),
+                            etai_over_etat * (uv->z + cos_theta* n->z)};
+    vec3 r_out_parallel = (vec3){-sqrt(fabs(1.0 - length_squared(r_out_perp))) * n->x,
+                                -sqrt(fabs(1.0 - length_squared(r_out_perp))) * n->y,
+                                -sqrt(fabs(1.0 - length_squared(r_out_perp))) * n->z};
+    return (vec3){r_out_perp.x + r_out_parallel.x, r_out_perp.y + r_out_parallel.y, r_out_perp.z + r_out_parallel.z};
+}
 #endif
