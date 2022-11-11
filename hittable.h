@@ -22,18 +22,19 @@ typedef struct {
     int index;
 } hit_map;
 
+// map the ray hit to the object function
 int hit_object(hit_map hm, const Ray r, double t_min, double t_max, hit_record *rec) {
     return hm.hit_fun(hm.index, r, t_min, t_max, rec);
 }
 
+// check if a ray hits any of the objects that can be hit
 int world_hit_object(hit_map * world, const Ray r, double t_min, double t_max, hit_record *rec) {
     hit_record temp_rec;
     int hit = 0;
     double closest_yet = t_max;
     int temp;
-    //sizeof(world) / sizeof(hit_map) == 10 rn
-    // breaks bc only 4 items exist
-    for (int i = 0; i < (4); i++){
+    // HIT_INDEX keeps track ofd the number of items that can be hit
+    for (int i = 0; i < (HIT_INDEX); i++){
         temp = hit_object(world[i], r, t_min, closest_yet, &temp_rec);
         if (temp){
             //printf("temp record normal x=%f, y=%f, z=%f\n", temp_rec.normal.x, temp_rec.normal.y, temp_rec.normal.z);
