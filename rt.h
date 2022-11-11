@@ -13,11 +13,11 @@ double random_double();
 inline double random_double() {
     return rand() / (RAND_MAX + 1.0);
 }
-double random_double_range();
+double random_double_range(double min, double mx);
 inline double random_double_range(double min, double max) {
     return min + ((max-min)*random_double());
 }
-double clamp();
+double clamp(double x, double min, double max);
 inline double clamp(double x, double min, double max){
     if (x < min) return min;
     if (x > max) return max;
