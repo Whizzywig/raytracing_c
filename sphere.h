@@ -15,10 +15,13 @@ typedef struct {
     const struct material * mat_ptr;
 } sphere;
 
-static sphere SPHERES[8];
+///TODO: replace with malloc
+//static sphere SPHERES[8];
+static sphere *SPHERES;
+static size_t SPHERES_SIZE = 0;
 static int SPHERE_CURRENT = 0;
 
-//TODO: figure out why it gets stuck here maybe debug with gdb
+// The function handling the ray collision with a sphere
 int sphere_hit(int index, const Ray r, double t_min, double t_max, hit_record *rec){
     vec3 oc = {r.origin.x - SPHERES[index].center.x, r.origin.y - SPHERES[index].center.y, r.origin.z - SPHERES[index].center.z};
     double a = length_squared(r.direction);
@@ -52,7 +55,18 @@ int sphere_hit(int index, const Ray r, double t_min, double t_max, hit_record *r
     return 1;
 }
 
+void malloc_spheres(size_t size){
+    SPHERES = malloc(sizeof(sphere) * size);
+    SPHERES_SIZE = size;
+}
+
+///TODO: make sure there is enough space in the SPHERES var
 hit_map create_sphere(vec3 center, double radius, const struct material * m){
+    //if at limit grow by 50%
+    if (SPHERE_CURRENT >= SPHERES_SIZE){
+        realloc(SPHERES, SPHERES_SIZE + (SPHERES_SIZE/2));
+        SPHERES_SIZE += SPHERES_SIZE/2;
+    }
     SPHERES[SPHERE_CURRENT] = (sphere){center, radius, m};
     SPHERE_CURRENT++;
     hit_map out = {&sphere_hit, HIT_INDEX};

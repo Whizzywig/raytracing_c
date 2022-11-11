@@ -51,6 +51,7 @@ int main() {
     material material_right = (material){(vec3){0.8, 0.6, 0.2}, *metal};
 
     // World
+    malloc_spheres(8);
     hit_map world[10];
     world[0] = create_sphere((vec3){0.0, 0.0, -1.0}, 0.5, &material_center);
     world[1] = create_sphere((vec3){0.0, -100.5, -1.0}, 100.0, &material_ground);
@@ -94,5 +95,6 @@ int main() {
         }
     }
     fprintf(stderr, "\nDone.\n");
+    free(SPHERES);
     return 0;
 }
